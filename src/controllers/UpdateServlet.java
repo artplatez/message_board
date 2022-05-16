@@ -50,6 +50,7 @@ public class UpdateServlet extends HttpServlet {
 			//데이터베이스를갱신
 			em.getTransaction().begin();
 			em.getTransaction().commit();
+            request.getSession().setAttribute("flush", "登録が完了しました。");
 			em.close();
 
 			//세션스코프상의 불필요한 데이터를 삭제
