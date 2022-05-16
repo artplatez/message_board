@@ -35,11 +35,27 @@ public class IndexServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		EntityManager em = DBUtil.createEntityManager();
 
-		List<Message> messages = em.createNamedQuery("getAllMessages", Message.class).getResultList();
+		//여는 페이지수를 습득(디폴트는 1페지)
+		int page = 1;
+		try {
+			page = Integer.parseInt(request.getParameter("page"));
+		} catch(NumberFormatException e) {}
+
+		//최대건수와 시작위치를 지정해서 메세지를 습득
+		List<Message> messages = em.createNamedQuery("getAllMessages", Message.class)
+						.setFirstResult(15* (page - 1))
+						.setMaxResults(15)
+						.getResultList();
+
+		//전건수를 습득
+		long messages_count = (long)em.createNamedQuery("getMessagesCount", Long.class)
+				.getSingleResult();
 
 		em.close();
 
-		request.setAttribute("messages", messages);
+		request.setAttribute("message", messages);
+		request.setAttribute("messages_count", messages_count);
+		request.setAttribute("page", page);
 
 		if(request.getSession().getAttribute("flush") != null) {
 			request.setAttribute("flush", request.getSession().getAttribute("flush"));
